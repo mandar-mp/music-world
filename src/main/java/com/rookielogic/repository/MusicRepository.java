@@ -30,10 +30,9 @@ public class MusicRepository {
 				 list=Files.walk(rootPath)
 						 
 						 .filter(path -> FilenameUtils
-								 			.getExtension(path.getFileName().toString()).equals("mp3"))
-						 .limit(1)
+						 .getExtension(path.getFileName().toString()).equals("mp3"))
+//						 .limit(1)
 				 		.map(track -> new Track(track))
-				 		
 				 		.peek( tracks -> System.out.println(tracks))
 				 		.collect(Collectors.toList());
 				 		
