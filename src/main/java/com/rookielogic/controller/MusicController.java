@@ -26,5 +26,9 @@ public class MusicController {
 		return musicService.listAllTracks();
 	}
 	
+	@RequestMapping(path="/gatherTracks")
+	public boolean gatherTrackDetails(){
+		return musicService.gatherTrackDetailsInDB();
+	}
 	
 }

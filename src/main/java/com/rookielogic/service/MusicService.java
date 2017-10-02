@@ -24,4 +24,8 @@ public class MusicService {
 	public List<Track> listAllTracks(){
 		return musicRepository.listAllTracks();
 	}
+	
+	public boolean gatherTrackDetailsInDB(){
+		return musicRepository.gatherTrackDetailsInDB();
+	}
 }

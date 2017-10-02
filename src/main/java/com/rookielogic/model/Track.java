@@ -1,32 +1,27 @@
 package com.rookielogic.model;
 
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.nio.file.attribute.FileAttributeView;
-import java.time.LocalDate;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.tika.exception.TikaException;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.parser.ParseContext;
-import org.apache.tika.parser.mp3.LyricsHandler;
 import org.apache.tika.parser.mp3.Mp3Parser;
 import org.apache.tika.sax.BodyContentHandler;
-import org.xml.sax.SAXException;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+@Document(collection="trackDetails")
 public class Track {
 
+	@Id
 	@JsonProperty
 	private long id;
 	@JsonProperty
@@ -34,15 +29,15 @@ public class Track {
 	@JsonProperty
 	private String album;
 	@JsonProperty
-	private List<Genre> genre;
+	private List<String> genre;
 	@JsonProperty
-	private int releaseYear;
+	private String releaseYear;
 	@JsonProperty
-	private List<Artist> artist;
+	private List<String> artist;
 	@JsonIgnore
 	private Map<String,String> attributes=new HashMap<>();
 
-	public Track(long id, String title, String album, List<Genre> genre, int releaseYear, List<Artist> artist) {
+	public Track(long id, String title, String album, List<String> genre, String releaseYear, List<String> artist) {
 		super();
 		this.id = id;
 		this.title = title;
@@ -61,13 +56,14 @@ public class Track {
 		}
 		this.title=attributes.get("title");
 		this.album=attributes.get("album");
-		//			this.genre=Arrays.asList(new Genre(1,Files.getAttribute(path, "Genre").toString()));
-		//			this.releaseYear=Integer.parseInt(Files.getAttribute(path, "Year").toString());
-		//			this.artist=Arrays.asList(new Artist(1,Files.getAttribute(path, "Contributing artists").toString(),LocalDate.now()));
-
+		if(null!=attributes.get("artist"))
+		this.artist=Arrays.asList(attributes.get("artist").split(","));
+		this.releaseYear=attributes.get("Year");
+		if(null!=attributes.get("genre"))
+		this.genre=Arrays.asList(attributes.get("genre").split(","));
 	}
 
-	public void parseAudioFileAttributes(Path path) throws Exception{
+	private void parseAudioFileAttributes(Path path) throws Exception{
 
 		BodyContentHandler handler = new BodyContentHandler();
 		Metadata metadata = new Metadata();
@@ -77,10 +73,8 @@ public class Track {
 
 		Mp3Parser.parse(inputstream, handler, metadata, parseContext);
 
-		//		System.out.println("Contents of the document:" + handler.toString());
-
 		for(String attributeName : metadata.names()) {		        
-			System.out.println(attributeName + "= " + metadata.get(attributeName));
+//			System.out.println(attributeName + "= " + metadata.get(attributeName));
 			this.attributes.put(attributeName.substring(attributeName.indexOf(":")+1),metadata.get(attributeName));
 		}
 	}
@@ -89,6 +83,15 @@ public class Track {
 	public String toString() {
 		return "Track Details: "+
 				" \""+this.title+"\" "+
-				" \""+this.album+"\" ";
+				" \""+this.album+"\" "+
+				" \""+this.releaseYear+"\" "+
+				" \""+this.artist+"\" "+
+				" \""+this.genre+"\" ";
 	}
+
+	public Map<String, String> getAttributes() {
+		return attributes;
+	}
+	
+	
 }
